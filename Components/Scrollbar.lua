@@ -54,7 +54,41 @@ function C:ApplyScrollbar(scrollFrame, scrollChild, parent)
 
     thumb:EnableMouse(true)
     local dragging = false
+    local hovered = false
     local dragStartY, dragStartScroll
+
+    local IDLE_A, HOVER_A = 0.75, 1
+
+    local thumbAG = thumb:CreateAnimationGroup()
+    local thumbAnim = thumbAG:CreateAnimation("Animation")
+    thumbAnim:SetDuration(0.18)
+    local tFrom, tTo = {}, {}
+    local tR, tG, tB, tA = theme.accent.r, theme.accent.g, theme.accent.b, IDLE_A
+
+    thumbAG:SetScript("OnUpdate", function(ag)
+        local p = ag:GetProgress() or 0
+        tR = tFrom.r + (tTo.r - tFrom.r) * p
+        tG = tFrom.g + (tTo.g - tFrom.g) * p
+        tB = tFrom.b + (tTo.b - tFrom.b) * p
+        tA = tFrom.a + (tTo.a - tFrom.a) * p
+        thumb:SetBackdropColor(tR, tG, tB, tA)
+    end)
+    thumbAG:SetScript("OnFinished", function()
+        thumb:SetBackdropColor(tTo.r, tTo.g, tTo.b, tTo.a)
+        tR, tG, tB, tA = tTo.r, tTo.g, tTo.b, tTo.a
+    end)
+
+    local function AnimateThumb()
+        thumbAG:Stop()
+        tFrom.r, tFrom.g, tFrom.b, tFrom.a = tR, tG, tB, tA
+        local ac = T().accent
+        tTo.r, tTo.g, tTo.b = ac.r, ac.g, ac.b
+        tTo.a = hovered and HOVER_A or IDLE_A
+        thumbAG:Play()
+    end
+
+    thumb:SetScript("OnEnter", function() hovered = true;  AnimateThumb() end)
+    thumb:SetScript("OnLeave", function() hovered = false; AnimateThumb() end)
 
     thumb:SetScript("OnMouseDown", function(_, btn)
         if btn ~= "LeftButton" then return end
