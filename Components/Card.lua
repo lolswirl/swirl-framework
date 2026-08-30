@@ -41,6 +41,12 @@ function C:CreateCard(parent, title)
         self.contentHeight = self.contentHeight + (widgetHeight or widget:GetHeight() or 20) + pad
         self:SetHeight(self.innerTop + self.contentHeight + theme2.padding.med)
         self._lastWidget = widget
+        if self._headerGated then
+            self._headerGated[#self._headerGated + 1] = widget
+            if widget.SetEnabled and self.headerToggle then
+                widget:SetEnabled(self.headerToggle:GetValue())
+            end
+        end
     end
 
     function card:AddSeparator()
@@ -75,6 +81,7 @@ function C:CreateCard(parent, title)
         local h = math.max(14, fs:GetStringHeight())
         self.contentHeight = self.contentHeight + h + theme2.padding.small
         self:SetHeight(self.innerTop + self.contentHeight + theme2.padding.med)
+        self:_GateText(fs)
         return fs
     end
 
@@ -114,6 +121,40 @@ function C:CreateCard(parent, title)
         return toggle
     end
 
+    function card:AddHeaderToggle(initialValue, onChange)
+        if not self.header then return end
+        local theme2 = T()
+        self._headerGated = {}
+        local toggle = C:CreateToggle(self.header, "", initialValue, function(val)
+            self:SetContentEnabled(val)
+            if onChange then onChange(val) end
+        end)
+        toggle:ClearAllPoints()
+        toggle:SetPoint("RIGHT", self.header, "RIGHT", -theme2.padding.med, 0)
+        toggle:SetWidth(theme2.toggleWidth + 24 + theme2.padding.small)
+        self.headerToggle = toggle
+        return toggle
+    end
+
+    function card:_GateText(region)
+        if not self._headerGated then return region end
+        self._headerGatedText = self._headerGatedText or {}
+        self._headerGatedText[#self._headerGatedText + 1] = region
+        if self.headerToggle then
+            region:SetAlpha(self.headerToggle:GetValue() and 1 or 0.4)
+        end
+        return region
+    end
+
+    function card:SetContentEnabled(enabled)
+        for _, w in ipairs(self._headerGated or {}) do
+            if w.SetEnabled then w:SetEnabled(enabled) end
+        end
+        for _, fs in ipairs(self._headerGatedText or {}) do
+            fs:SetAlpha(enabled and 1 or 0.4)
+        end
+    end
+
     function card:AddSectionHeader(text, isFirst)
         local theme2 = T()
         local topPad = isFirst and theme2.padding.small or theme2.padding.large
@@ -136,6 +177,9 @@ function C:CreateCard(parent, title)
         local h = math.max(14, fs:GetStringHeight())
         self.contentHeight = self.contentHeight + h + topPad
         self:SetHeight(self.innerTop + self.contentHeight + theme2.padding.med)
+
+        self:_GateText(fs)
+        self:_GateText(line)
 
         return fs
     end
