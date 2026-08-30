@@ -114,6 +114,32 @@ function C:CreateCard(parent, title)
         return toggle
     end
 
+    function card:AddSectionHeader(text, isFirst)
+        local theme2 = T()
+        local topPad = isFirst and theme2.padding.small or theme2.padding.large
+        local yOff = -(self.innerTop + self.contentHeight + topPad)
+
+        local fs = self:CreateFontString(nil, "OVERLAY")
+        ApplyFont(fs, "normal")
+        local c = theme2.accent
+        fs:SetTextColor(c.r, c.g, c.b, 1)
+        fs:SetJustifyH("LEFT")
+        fs:SetText(text or "")
+        fs:SetPoint("TOPLEFT", self, "TOPLEFT", theme2.padding.med, yOff)
+
+        local line = self:CreateTexture(nil, "ARTWORK")
+        line:SetHeight(1)
+        line:SetColorTexture(c.r, c.g, c.b, 0.25)
+        line:SetPoint("LEFT", fs, "RIGHT", theme2.padding.small, 0)
+        line:SetPoint("RIGHT", self, "RIGHT", -theme2.padding.med, 0)
+
+        local h = math.max(14, fs:GetStringHeight())
+        self.contentHeight = self.contentHeight + h + topPad
+        self:SetHeight(self.innerTop + self.contentHeight + theme2.padding.med)
+
+        return fs
+    end
+
     card:SetHeight(headerH + theme.padding.med)
     return card
 end
