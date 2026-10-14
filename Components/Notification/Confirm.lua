@@ -105,7 +105,7 @@ function C.ShowConfirm(text, onConfirm, onCancel, width, parent)
         confirm:SetParent(UIParent)
         confirm:SetFrameStrata("DIALOG")
         confirm:ClearAllPoints()
-        confirm:SetPoint("TOP", UIParent, "TOP", 0, -175)
+        confirm:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     end
 
     local function dismiss(cb)
