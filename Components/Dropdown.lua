@@ -191,7 +191,7 @@ function C:CreateDropdown(parent, labelText, options, initialValue, onChange)
         list:SetPoint("TOPRIGHT", btn, "BOTTOMRIGHT", 0, -2)
 
         local contentH = #_options * ITEM_H
-        local targetH = math.min(contentH, MAX_LIST_H)
+        local targetH = math.min(contentH + 2, MAX_LIST_H)
         sf:SetVerticalScroll(0)
 
         list:Show()
