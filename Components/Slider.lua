@@ -1,4 +1,5 @@
-local addon, SF = ...
+---@class SF
+local SF = select(2, ...)
 local C = SF.Components
 local T, ApplyFont, SetBackdrop = C.T, C.ApplyFont, C.SetBackdrop
 

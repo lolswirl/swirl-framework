@@ -1,4 +1,5 @@
-local _, SF = ...
+---@class SF
+local SF = select(2, ...)
 SF.Components = SF.Components or {}
 
 function SF.Setup(addonName)
